@@ -10,9 +10,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.senac.sp.tads.dsw.exemplo5.model.Departamento;
 import br.senac.sp.tads.dsw.exemplo5.repository.DepartamentoRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+// Para injeção de dependência via @Autowired:
+import tools.jackson.databind.ObjectMapper;
+// Para injeção de dependência direta:
+// import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -27,8 +34,12 @@ public class DepartamentoControllerTest {
     @Autowired
     private DepartamentoRepository repository;
 
+    // Para injeção de dependência via @Autowired:
     @Autowired
     private ObjectMapper objectMapper;
+    
+    // Para injeção de dependência direta:
+    // private ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     void deveCriarDepartamentoComSucesso() throws Exception {
@@ -48,5 +59,17 @@ public class DepartamentoControllerTest {
                 .andExpect(status().isCreated()) // HTTP 201
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.nome").value("Tecnologia da Informação"));
+    }
+
+    @Test
+    void deveListarTodosOsDepartamentos() throws Exception {
+        Departamento departamento = new Departamento();
+        departamento.setNome("RH");
+        departamento.setOrcamento(50000.00);
+        repository.save(departamento); // coloca 1 registro no banco de dados
+
+        mockMvc.perform(get("/api/departamentos"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].nome").value("RH")); // Posição zero do array
     }
 }
