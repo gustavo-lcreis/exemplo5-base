@@ -198,4 +198,3 @@ public class FuncionarioControllerTest {
                 .andExpect(status().isNotFound());
     }
 }
-```
